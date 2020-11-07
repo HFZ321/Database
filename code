@@ -1,0 +1,251 @@
+/* Third_Party_Companies table start                */
+/************************************************/
+CREATE TABLE [Third_Party_Companies] (
+    [company_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [company_type_code] INTEGER NOT NULL,
+	[maintance_contractor_yn] VARCHAR(255),
+	[supplier_yn] VARCHAR(255),
+    [company_name] VARCHAR(255),
+    [company_address] VARCHAR(255),
+    [other_company_details] VARCHAR(255),
+    CONSTRAINT [PK_Third_Party_Companies] PRIMARY KEY ([company_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+
+
+/* Maintance_Contracts table start                */
+/************************************************/
+CREATE TABLE [Maintenance_Contracts] (
+    [maintenance_contract_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [maintenance_contract_company_id] INTEGER,
+    [contract_start_date] DATETIME,
+    [contract_end_date] DATETIME,
+    [other_contract_details] VARCHAR(255),
+    CONSTRAINT [PK_Maintenance_Contracts] PRIMARY KEY ([maintenance_contract_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+/* Ref_Company_Types table start                */
+CREATE TABLE [Ref_Company_Types] (
+    [company_type_code] INTEGER IDENTITY(1,1) NOT NULL,
+    [company_type_description] VARCHAR(255),
+    CONSTRAINT [PK_Ref_Company_Types] PRIMARY KEY ([company_type_code])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+/* Machines table start                */
+CREATE TABLE [Machines] (
+    [machine_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [maintenance_contract_id] INTEGER NOT NULL,
+    [supplier_company_id] INTEGER ,
+    [machine_details] VARCHAR(255),
+    [machine_make] VARCHAR(20),
+    [machine_model] VARCHAR(20),
+    [machine_acquired_date] DATETIME,
+    [machine_disposed_date] DATETIME,
+    [other_machine_details] VARCHAR(255),
+    CONSTRAINT [PK_Assets] PRIMARY KEY ([machine_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+
+
+/* Machine_Parts table start                */
+CREATE TABLE [Machine_Parts] (
+    [company_type_code] INTEGER IDENTITY(1,1) NOT NULL,
+    [company_type_description] VARCHAR NOT NULL,
+    CONSTRAINT [PK_Skills_Required_To_Fix] PRIMARY KEY ([company_type_code], [company_type_description])
+)
+GO
+/*----------------------------------------------------------------*/
+
+/* Parts table start                */
+CREATE TABLE [Parts] (
+    [part_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [part_name] VARCHAR ,
+	[chargeable_yn] VARCHAR(255),
+	[chargeable_amount] VARCHAR(255),
+	[other_part_details] VARCHAR(255),
+	CONSTRAINT [PK_Parts] PRIMARY KEY ([part_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+/* Part_Faults table start                */
+CREATE TABLE [Part_Faults] (
+    [part_fault_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [part_id] INTEGER NOT NULL,
+    [fault_short_name] CHAR(20),
+    [fault_description] VARCHAR(255),
+    [other_fault_details] VARCHAR(255),
+    CONSTRAINT [PK_Part_Faults] PRIMARY KEY ([part_fault_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+/* Skills_Required_To_Fix table start                */
+CREATE TABLE [Skills_Required_To_Fix] (
+    [part_fault_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [skill_id] VARCHAR NOT NULL,
+	CONSTRAINT [PK_Skills_Required_To_Fix_table] PRIMARY KEY ([part_fault_id], [skill_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+/*  Skills table start                */
+CREATE TABLE [Skills] (
+    [skill_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [skill_code] CHAR(20),
+    [skill_description] VARCHAR(255),
+    CONSTRAINT [PK_Skills] PRIMARY KEY ([skill_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+/*  Engineer_Skills table start                */
+CREATE TABLE [Engineer_Skills] (
+    [engineer_id] VARCHAR(255) NOT NULL,
+    [skill_id] VARCHAR(255) NOT NULL,
+    CONSTRAINT [PK_Engineer_Skills_have] PRIMARY KEY ([engineer_id], [skill_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+/* Maintaince_Engineers start                */
+CREATE TABLE [Maintenance_Engineers] (
+    [engineer_id] INTEGER NOT NULL,
+    [company_id] INTEGER NOT NULL,
+	[engineer_details] VARCHAR(255),
+    CONSTRAINT [PK_Engineer_Skills] PRIMARY KEY ([engineer_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+/*  Fault_Log_ table start                */
+CREATE TABLE [Fault_Log] (
+    [fault_log_entry_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [asset_id] INTEGER NOT NULL,
+    [recorded_by_staff_id] INTEGER NOT NULL,
+    [fault_log_entry_datetime] DATETIME,
+    [fault_description] VARCHAR(255),
+    [other_fault_details] VARCHAR(255),
+    CONSTRAINT [PK_Fault_Log] PRIMARY KEY ([fault_log_entry_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+/*  Fault_Log_Parts table start                */
+CREATE TABLE [Fault_Log_Parts] (
+    [fault_log_entry_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [part_fault_id] INTEGER NOT NULL,
+	[fault_status_code] INTEGER NOT NULL,
+	CONSTRAINT [PK_Fault_Log_Parts] PRIMARY KEY ([fault_log_entry_id], [part_fault_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+/*  Staff table start                */
+CREATE TABLE [Staff](
+[staff_id] INTEGER IDENTITY(1,1) NOT NULL,
+[staff_name] VARCHAR(255),
+[gender] CHAR,
+[other_staff_details] VARCHAR(255),
+ CONSTRAINT [PK_Staff] PRIMARY KEY ([staff_id])
+)
+/*----------------------------------------------------------------*/
+
+
+
+/* Engineer_Visits table start                */
+CREATE TABLE [Engineer_Visits] (
+    [engineer_visit_id] INTEGER IDENTITY(1,1) NOT NULL,
+    [contact_staff_id] INTEGER NOT NULL,
+    [engineer_id] INTEGER NOT NULL,
+    [fault_log_entry_id] INTEGER NOT NULL,
+    [fault_status_code] INTEGER NOT NULL,
+    [visit_start_datetime] DATETIME,
+    [visit_end_datetime] DATETIME,
+    [other_visit_details] VARCHAR(255),
+    CONSTRAINT [PK_Engineer_Visits] PRIMARY KEY ([engineer_visit_id])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+
+
+/* Ref_Fault_Status table start                */
+CREATE TABLE [Ref_Fault_Status] (
+    [fault_status_code] INTEGER NOT NULL,
+    [fault_status_description] VARCHAR(255),
+    CONSTRAINT [PK_Ref_Fault_Status] PRIMARY KEY ([fault_status_code])
+)
+GO
+/*----------------------------------------------------------------*/
+
+
+/* Adding FOREIGN KEYS              */
+
+ALTER TABLE [Engineer_Visits] ADD CONSTRAINT [Maintenance_Engineers_Engineer_Visits] 
+    FOREIGN KEY ([engineer_id]) REFERENCES [Maintenance_Engineers] ([engineer_id])
+GO
+
+
+ALTER TABLE [Engineer_Visits] ADD CONSTRAINT [Staff_Engineer_Visits] 
+    FOREIGN KEY ([contact_staff_id]) REFERENCES [Staff] ([staff_id])
+GO
+
+ALTER TABLE [Engineer_Visits] ADD CONSTRAINT [Fault_Log_Engineer_Visits] 
+    FOREIGN KEY ([fault_log_entry_id]) REFERENCES [Fault_Log] ([fault_log_entry_id])
+GO
+
+
+ALTER TABLE [Engineer_Visits] ADD CONSTRAINT [Ref_Fault_Status_Engineer_Visits] 
+    FOREIGN KEY ([fault_status_code]) REFERENCES [Ref_Fault_Status] ([fault_status_code])
+GO
+
+ALTER TABLE [Third_Party_Companies] ADD CONSTRAINT [Ref_Company_Types_Third_Party_Companies] 
+    FOREIGN KEY ([company_type_code]) REFERENCES [Ref_Company_Types] ([company_type_code])
+GO
+
+ALTER TABLE [Machines] ADD CONSTRAINT [Suppliers_and_Maintenance_Companies_Machines] 
+    FOREIGN KEY ([supplier_company_id]) REFERENCES [Third_Party_Companies] ([company_id])
+GO
+ALTER TABLE [Machines] ADD CONSTRAINT [Maintenance_Contracts_Machines] 
+    FOREIGN KEY ([maintenance_contract_id]) REFERENCES [Maintenance_Contracts] ([maintenance_contract_id])
+GO
+
+ALTER TABLE [Maintenance_Engineers] ADD CONSTRAINT [Suppliers_and_Maintenance_Companies_Maintenance_Engineers] 
+    FOREIGN KEY ([company_id]) REFERENCES [Third_Party_Companies] ([company_id])
+GO
+
+
+ALTER TABLE [Maintenance_Contracts] ADD CONSTRAINT [Maintenance_Contract_Companies_Maintenance_Contracts] 
+    FOREIGN KEY ([maintenance_contract_company_id]) REFERENCES [Third_Party_Companies] ([company_id])
+GO
+
+ALTER TABLE [Part_Faults] ADD CONSTRAINT [Part_Part_aults]
+	FOREIGN KEY ([part_id]) REFERENCES [Parts] ([part_id])
+
+ 
+ALTER TABLE [Fault_Log_Parts] ADD CONSTRAINT [Ref_Fault_Status_Fault_Log_Parts]
+	FOREIGN KEY ([fault_status_code]) REFERENCES [Ref_Fault_Status] ([fault_status_code])
+
+ 
+ 
+
+
+/*----------------------------------------------------------------*/
