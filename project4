@@ -1,0 +1,245 @@
+CREATE TABLE [INPUT_DATA](
+	[Customer_id] VARCHAR(255) Not Null,
+	[zip] FLOAT NOT NULL,
+	[City] VARCHAR(255),
+	[State] VARCHAR(255),
+	[Population] INTEGER NOT NULL,
+	[County] VARCHAR(255),
+	[Area] VARCHAR NOT NULL,
+	[Job] VARCHAR(255),
+	[Age] FLOAT,
+	[Education] VARCHAR(255),
+	[Employment] VARCHAR(255),
+	[Marital] VARCHAR(255),
+	[Gender] VARCHAR(255),
+	[SeniorCitizen] VARCHAR(255),
+	[HighBlood] VARCHAR(255),
+	[Stroke] VARCHAR(255),
+	[Complication_Risk] VARCHAR(255),
+	[Overweight] VARCHAR(20),
+	[Arthritis] VARCHAR(20),
+	[Diabetes] VARCHAR(20),
+	[Hyperlipidemia] VARCHAR(20),
+	[BackPain] VARCHAR(20),
+	[Anxiety] VARCHAR(20),
+	[Allergic_rhinitis] VARCHAR(20),
+	[Reflux_esophagitis] VARCHAR(20),
+	[Asthma] VARCHAR(20),
+	CONSTRAINT [PK_INPUT_DATA] PRIMARY KEY ([Customer_id])
+);
+Go
+/* */
+CREATE TABLE [CUSTOMER_INFO] (
+	[Customer_id] VARCHAR(255) Not Null,
+	[Gender] VARCHAR(255),
+	[SeniorCitizen] VARCHAR(255),
+	[Employment] VARCHAR(255),
+	[Job] VARCHAR(255),
+	[Age] FLOAT,
+	[Education] VARCHAR(255),
+	[Marital] VARCHAR(255),
+	[zip] FLOAT NOT NULL,
+	CONSTRAINT [PK_CUSTOMER_INFO] PRIMARY KEY ([Customer_id])
+);
+GO
+CREATE TABLE [ADDRESS](
+	[zip] FLOAT NOT NULL,
+	[State] VARCHAR(255),
+	[City] VARCHAR(255),
+	[County] VARCHAR(255),
+	CONSTRAINT [PK_ADDRESS] PRIMARY KEY ([zip])
+);
+GO
+CREATE TABLE [CITY_INFO](
+	[City] VARCHAR(255),
+	[Area] VARCHAR(255) NOT NULL,
+	[Population] INTEGER NOT NULL,
+	CONSTRAINT [PK_CITY_INFO] PRIMARY KEY ([City])
+);
+GO
+CREATE TABLE[CUSTOMER_CONDITION](
+	[Customer_id] VARCHAR(255) Not Null,
+	[HighBlood] VARCHAR(255),
+	[Stroke] VARCHAR(255),
+	[Complication_Risk] VARCHAR(255),
+	[Overweight] VARCHAR(20),
+	[Arthritis] VARCHAR(20),
+	[Diabetes] VARCHAR(20),
+	[Hyperlipidemia] VARCHAR(20),
+	[BackPain] VARCHAR(20),
+	[Anxiety] VARCHAR(20),
+	[Allergic_rhinitis] VARCHAR(20),
+	[Reflux_esophagitis] VARCHAR(20),
+	[Asthma] VARCHAR(20),
+	CONSTRAINT [PK_CUSTOMER_CONDITION] PRIMARY KEY ([Customer_id])
+);
+GO
+CREATE TABLE[CARDIAC_CUSTOMERS](
+	[Customer_id] VARCHAR(255) Not Null, 
+	[Columns_ID] INTEGER IDENTITY(1, 1),
+	[HighBlood] VARCHAR(255),
+	[Overweight] VARCHAR(20),
+	[Stroke] VARCHAR(255),
+	[Hyperlipidemia] VARCHAR(20),
+	CONSTRAINT [PK_CARDIAC_CUSTOMERS] PRIMARY KEY ([Customer_id])
+);
+GO
+ALTER TABLE [CUSTOMER_INFO] ADD CONSTRAINT [CUS_ADDRESS] 
+    FOREIGN KEY ([zip]) REFERENCES [ADDRESS] ([zip])
+GO
+
+ALTER TABLE [ADDRESS] ADD CONSTRAINT [ADDRESS_CITY] 
+    FOREIGN KEY ([City]) REFERENCES [CITY_INFO] ([City])
+GO
+
+create procedure cardiac_insert
+as
+begin
+insert into 
+	dbo.CARDIAC_CUSTOMERS (Customer_id,HighBlood,Overweight,Stroke,Hyperlipidemia)
+select
+	Customer_id,
+	HighBlood,
+	Overweight,
+	Stroke,
+	Hyperlipidemia
+from
+	dbo.INPUT_DATA
+where
+	(HighBlood = 'yes' and Hyperlipidemia = 'yes')
+	or HighBlood = 'yes'
+	or Hyperlipidemia = 'yes';
+end;
+
+create proc Question9
+as
+begin
+select
+	Customer_id,
+	HighBlood,
+	Stroke,
+	Overweight,
+	Arthritis,
+	Diabetes,
+	Hyperlipidemia,
+	BackPain,
+	Anxiety,
+	Allergic_rhinitis,
+	Reflux_esophagitis,
+	Asthma
+from
+	dbo.INPUT_DATA
+where
+	SeniorCitizen = 'yes'
+order by
+	Age;
+select
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and HighBlood = 'yes' group by HighBlood) as HighBlood,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and Stroke = 'yes' group by Stroke) as Stroke,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and Overweight = 'yes' group by Overweight) as Overweight,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and Arthritis = 'yes' group by Arthritis) as Arthritis,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and Diabetes = 'yes' group by Diabetes) as Diabetes,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and Hyperlipidemia = 'yes' group by Hyperlipidemia) as Hyperlipidemia,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and BackPain = 'yes' group by BackPain) as BackPain,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and Anxiety = 'yes' group by Anxiety) as Anxiety,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and Allergic_rhinitis = 'yes' group by Allergic_rhinitis) as Allergic_rhinitis,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and Reflux_esophagitis = 'yes' group by Reflux_esophagitis) as Reflux_esophagitis,
+	(select Count(Customer_id) from dbo.INPUT_DATA where SeniorCitizen = 'yes'and Asthma = 'yes' group by Asthma) as Asthma
+end;
+
+create proc Question10
+as
+begin
+select
+	Customer_id,
+	HighBlood,
+	Stroke,
+	Overweight,
+	Arthritis,
+	Diabetes,
+	Hyperlipidemia,
+	BackPain,
+	Anxiety,
+	Allergic_rhinitis,
+	Reflux_esophagitis,
+	Asthma
+from
+	dbo.INPUT_DATA
+where
+	Gender = 'Female'
+order by
+	Age;
+select
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and HighBlood = 'yes' group by HighBlood) as HighBlood,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and Stroke = 'yes' group by Stroke) as Stroke,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and Overweight = 'yes' group by Overweight) as Overweight,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and Arthritis = 'yes' group by Arthritis) as Arthritis,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and Diabetes = 'yes' group by Diabetes) as Diabetes,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and Hyperlipidemia = 'yes' group by Hyperlipidemia) as Hyperlipidemia,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and BackPain = 'yes' group by BackPain) as BackPain,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and Anxiety = 'yes' group by Anxiety) as Anxiety,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and Allergic_rhinitis = 'yes' group by Allergic_rhinitis) as Allergic_rhinitis,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and Reflux_esophagitis = 'yes' group by Reflux_esophagitis) as Reflux_esophagitis,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Gender = 'Female'and Asthma = 'yes' group by Asthma) as Asthma
+end;
+
+
+create proc Question11
+as
+begin
+select
+	customer_id,
+	HighBlood,
+	Stroke,
+	Overweight,
+	Arthritis,
+	Diabetes,
+	Hyperlipidemia,
+	BackPain,
+	Anxiety,
+	Allergic_rhinitis,
+	Reflux_esophagitis,
+	Asthma
+from
+	dbo.INPUT_DATA
+order by
+	Age;
+select
+	(select Count(Customer_id) from dbo.INPUT_DATA where HighBlood = 'yes' group by HighBlood) as HighBlood,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Stroke = 'yes' group by Stroke) as Stroke,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Overweight = 'yes' group by Overweight) as Overweight,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Arthritis = 'yes' group by Arthritis) as Arthritis,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Diabetes = 'yes' group by Diabetes) as Diabetes,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Hyperlipidemia = 'yes' group by Hyperlipidemia) as Hyperlipidemia,
+	(select Count(Customer_id) from dbo.INPUT_DATA where BackPain = 'yes' group by BackPain) as BackPain,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Anxiety = 'yes' group by Anxiety) as Anxiety,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Allergic_rhinitis = 'yes' group by Allergic_rhinitis) as Allergic_rhinitis,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Reflux_esophagitis = 'yes' group by Reflux_esophagitis) as Reflux_esophagitis,
+	(select Count(Customer_id) from dbo.INPUT_DATA where Asthma = 'yes' group by Asthma) as Asthma
+end;
+
+create procedure question12
+as
+begin
+	select
+		Customer_id,
+		Anxiety,
+		Overweight,
+		Reflux_esophagitis,
+		Allergic_rhinitis,
+		Asthma
+	from
+		dbo.INPUT_DATA
+	where
+		(Anxiety = 'yes' and Overweight = 'yes')
+		and (Reflux_esophagitis = 'yes'
+		or Allergic_rhinitis = 'yes'
+		or Asthma = 'yes')
+
+end;
+
+
+
+
+
+/*-----------------------------------------------------------------------------------------------------*/
